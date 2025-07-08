@@ -15,8 +15,11 @@ def process_pid(raw_pid):
     # Join all groups of digits
     full_number_str = "".join(digits)
     
-    # Remove the last two digits
-    processed_number_str = full_number_str[:-2]
+    # If the number of digits is greater than 7, remove the trailing 2 digits.
+    if len(full_number_str) > 7:
+        processed_number_str = full_number_str[:-2]
+    else:
+        processed_number_str = full_number_str
     
     # Prepend "JB000"
     return f"JB000{processed_number_str}"
