@@ -76,7 +76,7 @@ def main():
     
     with open(output_csv, 'w', newline='') as csvfile:
         fieldnames = [
-            "PID # / Job ID #", "Invoice #", "Total Amount", "P.O. #",
+            "Project #", "PID # / Job ID #", "Invoice #", "Total Amount", "P.O. #",
             "Constant", "Code", "Quantity", "Rate", "Amount"
         ]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
@@ -90,6 +90,7 @@ def main():
                 
                 for item in data["Line Items"]:
                     row_data = {
+                        "Project #": "473059",
                         "PID # / Job ID #": data["PID # / Job ID #"],
                         "Invoice #": data["Invoice #"],
                         "Total Amount": data["Total Amount"],
