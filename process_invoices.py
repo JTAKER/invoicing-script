@@ -7,6 +7,10 @@ def process_pid(raw_pid):
     """
     Processes the raw PID string according to the specified rules.
     """
+    prefix = "JB"
+    if raw_pid and "REQ" in raw_pid.upper():
+        prefix = "REQ"
+
     # Extract all digits from the string
     digits = re.findall(r'\d+', raw_pid)
     if not digits:
@@ -15,14 +19,17 @@ def process_pid(raw_pid):
     # Join all groups of digits
     full_number_str = "".join(digits)
     
-    # If the number of digits is greater than 7, remove the trailing 2 digits.
+    # If the number of digits is greater than 7, assume the last two are trailing and remove them.
     if len(full_number_str) > 7:
-        processed_number_str = full_number_str[:-2]
+        core_number_str = full_number_str[:-2]
     else:
-        processed_number_str = full_number_str
-    
-    # Prepend "JB000"
-    return f"JB000{processed_number_str}"
+        core_number_str = full_number_str
+        
+    # Now, check the length of the core number and format accordingly.
+    if len(core_number_str) == 6:
+        return f"{prefix}0000{core_number_str}"
+    else: # Handles 7-digit numbers and any other cases
+        return f"{prefix}000{core_number_str}"
 
 def extract_invoice_data(pdf_path):
     """
