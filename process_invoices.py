@@ -35,12 +35,12 @@ def extract_invoice_data(pdf_path):
     """
     Extracts all required data from a single PDF invoice using table data.
     """
+    invoice_number = os.path.splitext(os.path.basename(pdf_path))[0]
     with pdfplumber.open(pdf_path) as pdf:
         page = pdf.pages[0]
         tables = page.extract_tables()
 
         # Extract data from the specific table cells
-        invoice_number = tables[0][1][1]
         main_table = tables[2]
         
         raw_pid = main_table[1][5]
@@ -79,7 +79,7 @@ def main():
     """
     Main function to process all PDF invoices in a directory and write to a CSV.
     """
-    invoice_dir = r"C:\Users\Joey\Desktop\inv"
+    invoice_dir = os.getcwd()
     output_csv = os.path.join(invoice_dir, "invoices_manual.csv")
     
     pdf_files = [f for f in os.listdir(invoice_dir) if f.lower().endswith('.pdf')]
