@@ -2,6 +2,7 @@ import os
 import csv
 import re
 import pdfplumber
+import datetime
 
 def process_pid(raw_pid):
     """
@@ -79,15 +80,39 @@ def main():
     """
     Main function to process all PDF invoices in a directory and write to a CSV.
     """
+    # Get batch letter
+    while True:
+        batch_letter = input("Which batch is this? (A-Z): ").upper()
+        if len(batch_letter) == 1 and 'A' <= batch_letter <= 'Z':
+            break
+        print("Invalid input. Please enter a single letter from A to Z.")
+
+    # Get invoice type
+    while True:
+        invoice_type_input = input("Is this an Expense or Commercial invoice? (e/c): ").lower()
+        if invoice_type_input in ['e', 'c']:
+            break
+        print("Invalid input. Please enter 'e' for Expense or 'c' for Commercial.")
+
+    invoice_type = "Expense" if invoice_type_input == 'e' else "Commercial"
+
     invoice_dir = os.getcwd()
-    output_csv = os.path.join(invoice_dir, "invoices_manual.csv")
+    today_date = datetime.datetime.now().strftime("%Y-%m-%d")
+
+    # Construct the filename
+    filename = f"{today_date} Batch {batch_letter} {invoice_type}.csv"
+    output_csv = os.path.join(invoice_dir, filename)
     
     pdf_files = [f for f in os.listdir(invoice_dir) if f.lower().endswith('.pdf')]
     
     with open(output_csv, 'w', newline='') as csvfile:
+        # Write the custom first row
+        custom_writer = csv.writer(csvfile)
+        custom_writer.writerow(['InvoiceCSV_V2'])
+
         fieldnames = [
-            "Project #", "PID # / Job ID #", "Invoice #", "Total Amount", "P.O. #",
-            "Constant", "Code", "Quantity", "Rate", "Amount"
+            "Vendor Number", "P2_JOB_ID", "Invoice Number", "Invoice Amount", "Purchase Order Number",
+            "Purchase Order Number Line", "Labor Part Number", "Quantity Invoiced", "Unit Price", "Invoice Line Amount", "Notes"
         ]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames, quoting=csv.QUOTE_ALL)
         writer.writeheader()
@@ -100,16 +125,17 @@ def main():
                 
                 for item in data["Line Items"]:
                     row_data = {
-                        "Project #": "473059",
-                        "PID # / Job ID #": data["PID # / Job ID #"],
-                        "Invoice #": data["Invoice #"],
-                        "Total Amount": data["Total Amount"],
-                        "P.O. #": data["P.O. #"],
-                        "Constant": item["Constant"],
-                        "Code": item["Code"],
-                        "Quantity": item["Quantity"],
-                        "Rate": item["Rate"],
-                        "Amount": item["Amount"]
+                        "Vendor Number": "473059",
+                        "P2_JOB_ID": data["PID # / Job ID #"],
+                        "Invoice Number": data["Invoice #"],
+                        "Invoice Amount": data["Total Amount"],
+                        "Purchase Order Number": data["P.O. #"],
+                        "Purchase Order Number Line": item["Constant"],
+                        "Labor Part Number": item["Code"],
+                        "Quantity Invoiced": item["Quantity"],
+                        "Unit Price": item["Rate"],
+                        "Invoice Line Amount": item["Amount"],
+                        "Notes": ""
                     }
                     writer.writerow(row_data)
             except Exception as e:
