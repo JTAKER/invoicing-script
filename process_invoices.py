@@ -89,7 +89,7 @@ def main():
             "Project #", "PID # / Job ID #", "Invoice #", "Total Amount", "P.O. #",
             "Constant", "Code", "Quantity", "Rate", "Amount"
         ]
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames, quoting=csv.QUOTE_ALL)
         writer.writeheader()
 
         for pdf_file in pdf_files:
